@@ -7,11 +7,15 @@
 ```
 docs/
 ├── README.md           # 이 파일
-└── a2a/               # A2A Protocol 문서
-    ├── a2a-protocol-overview.md
-    ├── a2a-architecture.md
-    ├── a2a-implementation-guide.md
-    └── a2a-examples.md
+├── a2a/               # A2A Protocol 문서
+│   ├── a2a-protocol-overview.md
+│   ├── a2a-architecture.md
+│   ├── a2a-implementation-guide.md
+│   └── a2a-examples.md
+└── ap2/               # AP2 Protocol 문서
+    ├── ap2-protocol-overview.md
+    ├── ap2-architecture.md
+    └── ap2-implementation-guide.md
 ```
 
 ## 📖 A2A Protocol 문서
@@ -69,6 +73,57 @@ docs/
 2. [a2a-implementation-guide.md](./a2a/a2a-implementation-guide.md)의 배포 및 모니터링 구현
 3. [a2a-examples.md](./a2a/a2a-examples.md)의 예제 8-10으로 복잡한 시스템 설계
 
+## 📖 AP2 Protocol 문서
+
+### [AP2 Protocol 디렉토리](./ap2/)
+
+AI 에이전트 간 안전하고 신뢰할 수 있는 커머스를 위한 개방형 결제 프로토콜에 대한 포괄적인 가이드입니다.
+
+#### 문서 목록
+
+1. **[ap2-protocol-overview.md](./ap2/ap2-protocol-overview.md)** - 프로토콜 개요
+   - AP2 프로토콜 소개 (Agent Payments Protocol)
+   - A2A 프로토콜의 확장으로서의 AP2
+   - 4가지 핵심 역할 (Merchant, Shopper, Credentials Provider, Payment Processor)
+   - 핵심 지침 원칙 (개방성, 사용자 제어, 검증 가능한 의도, 명확한 책임)
+   - CartMandate 개념 및 구조
+   - 지원 결제 방법 및 로드맵
+   - 보안 및 신뢰 메커니즘
+
+2. **[ap2-architecture.md](./ap2/ap2-architecture.md)** - 아키텍처 심층 분석
+   - 4가지 에이전트 역할 상세 설명
+   - Agent Card 예제 (각 역할별)
+   - CartMandate 및 Artifact 구조
+   - 결제 흐름 (5단계)
+   - 시퀀스 다이어그램
+   - 보안 아키텍처 (암호화 서명, OAuth2)
+   - 확장성 (새로운 결제 방법, 새로운 역할)
+
+3. **[ap2-implementation-guide.md](./ap2/ap2-implementation-guide.md)** - 구현 가이드
+   - 개발 환경 설정
+   - 역할별 구현 가이드 (Merchant, Shopper, Credentials Provider, Payment Processor)
+   - CartMandate 생성 및 검증
+   - OAuth2 인증 구현
+   - 결제 흐름 구현 (전체 시나리오)
+   - 보안 모범 사례
+   - 테스팅 및 배포
+
+#### 학습 경로
+
+**초급**: AP2 프로토콜 이해하기
+1. [ap2-protocol-overview.md](./ap2/ap2-protocol-overview.md) 읽기
+2. A2A 프로토콜 선수 학습 ([a2a-protocol-overview.md](./a2a/a2a-protocol-overview.md))
+
+**중급**: AP2 에이전트 구현하기
+1. [ap2-architecture.md](./ap2/ap2-architecture.md) 학습
+2. [ap2-implementation-guide.md](./ap2/ap2-implementation-guide.md) 따라하기
+3. 단일 역할 에이전트 구현 (Merchant 또는 Shopper)
+
+**고급**: 프로덕션 결제 시스템 구축
+1. [ap2-architecture.md](./ap2/ap2-architecture.md)의 보안 아키텍처 심화 학습
+2. [ap2-implementation-guide.md](./ap2/ap2-implementation-guide.md)의 OAuth2 및 암호화 구현
+3. 전체 결제 흐름을 포함한 다중 역할 시스템 설계
+
 ## 🔗 외부 참고 자료
 
 ### A2A Protocol 공식 문서
@@ -86,6 +141,11 @@ docs/
 - Python SDK: `pip install a2a-sdk`
 - JavaScript SDK: `npm install @a2a/sdk`
 - Go SDK: `go get github.com/a2aproject/a2a-go`
+
+### AP2 Protocol 공식 문서
+- [AP2 공식 웹사이트](https://ap2-protocol.org)
+- [AP2 GitHub 저장소](https://github.com/ap2-protocol)
+- [AP2 Specification](https://github.com/context7/ap2-protocol/blob/main/specification.md)
 
 ## 🛠️ 프로젝트 에이전트
 
@@ -125,10 +185,12 @@ Web3 및 Ethereum 개발을 위한 전문 에이전트
 
 ## 🔄 업데이트 내역
 
-- **2025-12-30**: 초기 문서 세트 작성
+- **2025-12-30**: 초기 문서 세트 작성 및 AP2 Protocol 추가
   - A2A Protocol 문서 4개 추가 (Overview, Architecture, Implementation, Examples)
-  - 문서를 `docs/a2a/` 디렉토리로 구조화
+  - AP2 Protocol 문서 3개 추가 (Overview, Architecture, Implementation)
+  - 문서를 `docs/a2a/` 및 `docs/ap2/` 디렉토리로 구조화
   - AI Agent를 A2A 특화에서 범용 AI 에이전트로 확장
+  - Context7 MCP를 활용한 최신 프로토콜 정보 통합
 
 ## 📬 문의
 
