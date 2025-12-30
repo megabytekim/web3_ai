@@ -1,0 +1,56 @@
+{
+  "name": "web3-ai-agents",
+  "owner": {
+    "name": "Your Name",
+    "email": "your.email@example.com",
+    "url": "https://github.com/yourusername"
+  },
+  "metadata": {
+    "description": "Specialized AI agents for Web3/Ethereum development and multi-agent systems (A2A)",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "web3-agent",
+      "source": "./plugins/web3-agent",
+      "version": "1.0.0",
+      "description": "Web3 and Ethereum blockchain development agent specializing in X402 protocol and Ethereum ecosystem",
+      "category": "blockchain",
+      "author": {
+        "name": "Your Name",
+        "url": "https://github.com/yourusername"
+      },
+      "homepage": "https://github.com/yourusername/web3_ai",
+      "repository": "https://github.com/yourusername/web3_ai",
+      "license": "MIT",
+      "keywords": ["web3", "ethereum", "x402", "blockchain", "smart-contracts"],
+      "strict": false,
+      "commands": [],
+      "agents": [
+        "./agents/x402-ethereum-agent.md"
+      ],
+      "skills": []
+    },
+    {
+      "name": "ai-agent",
+      "source": "./plugins/ai-agent",
+      "version": "1.0.0",
+      "description": "Comprehensive AI agent development specialist for LLM-based agents, multi-agent systems, RAG, tool integration, and A2A protocol communication",
+      "category": "ai-ml",
+      "author": {
+        "name": "Your Name",
+        "url": "https://github.com/yourusername"
+      },
+      "homepage": "https://github.com/yourusername/web3_ai",
+      "repository": "https://github.com/yourusername/web3_ai",
+      "license": "MIT",
+      "keywords": ["ai", "agent", "llm", "langchain", "rag", "multi-agent", "a2a"],
+      "strict": false,
+      "commands": [],
+      "agents": [
+        "./agents/ai-agent.md"
+      ],
+      "skills": []
+    }
+  ]
+}
