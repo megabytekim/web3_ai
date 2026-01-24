@@ -1,0 +1,9 @@
+{
+  "name": "web3-study",
+  "version": "0.1.0",
+  "description": "Web3 AI 에이전트 세미나 학습 도구 - 이론, 동향, 코드 연구",
+  "author": {
+    "name": "Michael"
+  },
+  "keywords": ["web3", "ai", "agents", "a2a", "ap2", "x402", "study"]
+}
