@@ -1,0 +1,40 @@
+{
+  "products": [
+    {
+      "id": "flower-001",
+      "title": "Red Rose Bouquet",
+      "description": "12송이 빨간 장미 꽃다발",
+      "price": {
+        "currency": "USD",
+        "value": "45.00"
+      },
+      "availability": "IN_STOCK",
+      "images": ["https://example.com/images/roses.jpg"],
+      "category": "flowers"
+    },
+    {
+      "id": "flower-002",
+      "title": "White Lily Arrangement",
+      "description": "우아한 백합 꽃꽂이",
+      "price": {
+        "currency": "USD",
+        "value": "65.00"
+      },
+      "availability": "IN_STOCK",
+      "images": ["https://example.com/images/lily.jpg"],
+      "category": "flowers"
+    },
+    {
+      "id": "flower-003",
+      "title": "Mixed Spring Bouquet",
+      "description": "봄꽃 믹스 부케",
+      "price": {
+        "currency": "USD",
+        "value": "55.00"
+      },
+      "availability": "IN_STOCK",
+      "images": ["https://example.com/images/spring.jpg"],
+      "category": "flowers"
+    }
+  ]
+}
