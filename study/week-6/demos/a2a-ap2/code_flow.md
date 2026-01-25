@@ -324,6 +324,71 @@ def handle_message_send(params, request_id):
 
 이 데모는 학습 목적으로 핵심 플로우를 이해하기 위해 단순화되었습니다.
 
+### Intent Mandate가 필요한 시나리오
+
+Intent Mandate는 **Human NOT Present** (사용자가 자리에 없는) 상황에서 필요합니다.
+
+```
+예시: "콘서트 티켓이 풀리면 바로 사줘"
+
+1. User가 Intent Mandate 서명 (조건: 가격 < $200, 좌석 A구역)
+2. User 자리 비움 (Human NOT Present)
+3. 티켓 오픈 → Agent가 조건 확인
+4. 조건 충족 시 Agent가 자동으로 Cart Mandate 생성
+5. Payment Mandate 전송 → 결제 완료
+```
+
+### Intent Mandate 예시 코드 (미구현)
+
+```python
+# client_agent.py - Intent Mandate 생성 (Human NOT Present)
+intent_mandate = {
+    "intent_mandate_contents": {
+        "intent_mandate_id": f"im_{uuid.uuid4().hex[:12]}",
+
+        # 구매 조건
+        "shopping_parameters": {
+            "product_category": "concert_tickets",
+            "max_price": {"currency": "USD", "value": "200.00"},
+            "constraints": ["seat_section:A", "quantity:2"]
+        },
+
+        # Agent가 이해한 의도 (자연어)
+        "natural_language_playback": "콘서트 티켓 2장, A구역, $200 이하로 구매"
+    },
+
+    # 사용자 서명 (사전 승인)
+    "user_authorization": "eyJhbGciOiJFUzI1NksifQ...",
+
+    # 유효 기간
+    "ttl": "2026-02-01T00:00:00Z"
+}
+```
+
+```python
+# merchant_agent.py - Intent Mandate 처리
+def handle_intent_mandate(intent_mandate):
+    """
+    Intent Mandate 수신 시:
+    1. 조건 충족 여부 확인
+    2. 충족 시 Cart Mandate 자동 생성
+    3. Payment Mandate로 결제 진행
+    """
+    params = intent_mandate["intent_mandate_contents"]["shopping_parameters"]
+    max_price = float(params["max_price"]["value"])
+
+    # 조건에 맞는 상품 검색
+    matching_products = search_products_by_constraints(params)
+
+    if matching_products and matching_products[0]["price"] <= max_price:
+        # 조건 충족 → 자동 구매 진행
+        cart_mandate = create_cart_mandate(matching_products[0])
+        return {"action": "proceed", "cart_mandate": cart_mandate}
+    else:
+        # 조건 미충족 → 대기
+        return {"action": "wait"}
+```
+
 ---
 
 ## 참고 자료
