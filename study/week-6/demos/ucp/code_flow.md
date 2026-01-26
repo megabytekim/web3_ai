@@ -442,6 +442,149 @@ UCP는 transport를 선택할 수 있습니다:
 
 ---
 
+## Payment Handler 예시 (미구현)
+
+UCP는 **Payment Instrument** (결제 수단)와 **Payment Handler** (처리 방법)를 분리합니다.
+
+### 문제: N-to-N 복잡성
+
+```
+기존 방식: 모든 상점이 모든 결제사와 직접 연동
+┌─────────┐     ┌─────────┐
+│ 상점 A  │─────│  Visa   │
+│         │──┬──│Mastercard│
+│         │──│──│ PayPal  │
+└─────────┘  │  └─────────┘
+┌─────────┐  │
+│ 상점 B  │──┴── (동일한 연동 반복)
+└─────────┘
+
+UCP 방식: Payment Handler가 중간에서 처리
+┌─────────┐     ┌─────────────┐     ┌─────────┐
+│  상점   │────▶│Payment Handler│────▶│ 결제사  │
+└─────────┘     └─────────────┘     └─────────┘
+                (Stripe, Adyen 등)
+```
+
+### Capability Profile에서 Payment Handler 선언
+
+```json
+{
+  "capabilities": {
+    "checkout": {
+      "payment": {
+        "instruments": [
+          {
+            "type": "CARD",
+            "networks": ["visa", "mastercard", "amex"]
+          },
+          {
+            "type": "WALLET",
+            "providers": ["apple_pay", "google_pay"]
+          },
+          {
+            "type": "CRYPTO",
+            "chains": ["ethereum", "base"],
+            "tokens": ["USDC"]
+          }
+        ],
+        "handlers": [
+          {
+            "id": "stripe_handler",
+            "provider": "Stripe",
+            "supports": ["CARD", "WALLET"],
+            "endpoint": "https://api.stripe.com/v1/payment_intents"
+          },
+          {
+            "id": "coinbase_handler",
+            "provider": "Coinbase",
+            "supports": ["CRYPTO"],
+            "endpoint": "https://api.commerce.coinbase.com/charges"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+### Payment Handler 처리 플로우
+
+```python
+# merchant_server.py - Payment Handler 라우팅 (미구현)
+def process_payment(session, payment_info):
+    """
+    Payment Handler를 통한 결제 처리
+
+    1. 결제 수단(Instrument) 확인
+    2. 적합한 Handler 선택
+    3. Handler에게 결제 위임
+    """
+    instrument_type = payment_info.get("type")  # "CARD", "CRYPTO" 등
+
+    # Handler 선택
+    handler = select_handler(instrument_type)
+
+    if handler["provider"] == "Stripe":
+        return process_with_stripe(handler, session, payment_info)
+    elif handler["provider"] == "Coinbase":
+        return process_with_coinbase(handler, session, payment_info)
+
+
+def process_with_stripe(handler, session, payment_info):
+    """Stripe Payment Handler"""
+    # Stripe API 호출
+    response = httpx.post(
+        handler["endpoint"],
+        headers={"Authorization": f"Bearer {STRIPE_SECRET_KEY}"},
+        json={
+            "amount": int(float(session["total"]["value"]) * 100),
+            "currency": session["total"]["currency"].lower(),
+            "payment_method": payment_info["token"],
+            "confirm": True
+        }
+    )
+
+    return {
+        "success": response.status_code == 200,
+        "transaction_id": response.json().get("id"),
+        "handler": "stripe"
+    }
+
+
+def process_with_coinbase(handler, session, payment_info):
+    """Coinbase Commerce Payment Handler (USDC)"""
+    response = httpx.post(
+        handler["endpoint"],
+        headers={"X-CC-Api-Key": COINBASE_API_KEY},
+        json={
+            "name": f"Order {session['session_id']}",
+            "pricing_type": "fixed_price",
+            "local_price": {
+                "amount": session["total"]["value"],
+                "currency": "USD"
+            }
+        }
+    )
+
+    return {
+        "success": response.status_code == 201,
+        "transaction_id": response.json().get("data", {}).get("id"),
+        "handler": "coinbase"
+    }
+```
+
+### Payment Handler의 장점
+
+| 장점 | 설명 |
+|------|------|
+| **표준화** | 상점은 UCP 표준만 따르면 됨 |
+| **유연성** | Handler만 교체하면 결제사 변경 가능 |
+| **보안** | 토큰화된 결제 정보만 전달 |
+| **확장성** | 새 결제 수단 추가 시 Handler만 추가 |
+
+---
+
 ## 참고 자료
 
 - [UCP Official Documentation](https://ucp.dev/)
