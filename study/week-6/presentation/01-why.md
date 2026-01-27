@@ -57,6 +57,12 @@
 | **OpenAI/Stripe** | ACP + ChatGPT Instant Checkout | 2025년 |
 | **Amazon** | Rufus AI + Auto Buy | 2025년 |
 
+#### 플랫폼별 전략 특징
+
+- **Google**: 프로토콜 표준화 주도. 에이전트 통신(A2A), 결제(AP2), 통합 결제 플로우(UCP)를 모두 제공하는 **오픈 생태계** 구축
+- **OpenAI/Stripe**: ChatGPT 내 **원클릭 결제** 경험. Stripe 인프라 활용으로 빠른 상용화, **폐쇄형 생태계**
+- **Amazon**: 기존 커머스 인프라(1억+ 상품, 프라임 배송) 활용. **자체 에코시스템 강화**에 집중
+
 ### 결제사 진영
 
 | 플레이어 | 솔루션 | 특징 |
@@ -64,6 +70,12 @@
 | **Visa** | Intelligent Commerce + Agent Token | Cloudflare와 Trusted Agent Protocol |
 | **Mastercard** | Agent Pay + Agentic Tokens | 2025년 9월 첫 실제 거래 완료 |
 | **PayPal** | 다중 플랫폼 (ChatGPT, Perplexity 통합) | MCP 서버 공식 출시 |
+
+#### 결제사별 전략 특징
+
+- **Visa**: Cloudflare와 협력하여 **에이전트 신원 인증** 중심. 기존 카드 네트워크를 AI 에이전트에 확장
+- **Mastercard**: **가장 빠른 실행력**. 이미 실거래 완료, 토큰 기반 에이전트 인증으로 보안 강화
+- **PayPal**: **플랫폼 중립적** 접근. 다양한 AI 서비스에 통합되어 어디서든 결제 가능
 
 ### 업계 협력
 
