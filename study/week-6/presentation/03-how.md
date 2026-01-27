@@ -265,4 +265,42 @@ python client_demo.py
 
 ---
 
+## 부록: Cart Mandate vs Checkout Session
+
+### 핵심 차이
+
+| 구분 | Cart Mandate (AP2) | Checkout Session (UCP) |
+|------|-------------------|----------------------|
+| **본질** | 암호화 서명된 계약서 | 서버 세션 (Stripe처럼) |
+| **서명** | 판매자 + 사용자 서명 필수 | 서명 없음 |
+| **목적** | 법적 증거, 분쟁 대비 | 결제 흐름 관리 |
+| **변조** | 불가능 (암호화) | 서버가 관리 |
+| **체인** | Intent → Cart → Payment | 단독 세션 |
+
+### 비유
+
+**Cart Mandate:**
+```
+"사용자가 이 상품을 이 가격에 사겠다고 서명했다"
+→ 나중에 분쟁 시 증거로 사용 가능
+→ 에이전트가 마음대로 결제 못 함
+```
+
+**Checkout Session:**
+```
+"이 세션에서 이 상품들을 결제 중이다"
+→ 전통적인 웹 결제와 동일
+→ 서버가 세션 관리
+```
+
+### 언제 뭘 쓰나?
+
+- **Cart Mandate**: AI가 자율적으로 구매할 때 (Human-Not-Present), 신뢰가 중요할 때
+- **Checkout Session**: 기존 쇼핑몰에 AI 연동할 때, 단순한 구조가 필요할 때
+
+> Cart Mandate는 "AI 에이전트 시대의 신뢰 메커니즘"이고,
+> Checkout Session은 "기존 방식의 확장"입니다.
+
+---
+
 *데모 상세: [demos/x402/code_flow.md](../demos/x402/code_flow.md), [demos/a2a-ap2/code_flow.md](../demos/a2a-ap2/code_flow.md)*
