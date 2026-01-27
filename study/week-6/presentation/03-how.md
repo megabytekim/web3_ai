@@ -1,15 +1,20 @@
 # 3. How: 데모 시연
 
-> **발표 시간**: 15분
-
----
-
 ## 사전 준비
 
-### 가상환경 활성화
+### 가상환경 설정
 
 ```bash
 cd /path/to/web3_ai/study/week-6
+
+# 가상환경이 없으면 생성
+python -m venv venv
+source venv/bin/activate
+pip install flask httpx pytest
+```
+
+이미 venv가 있으면 활성화만:
+```bash
 source venv/bin/activate
 ```
 
@@ -20,7 +25,7 @@ source venv/bin/activate
 
 ---
 
-## 데모 1: x402 (7분)
+## 데모 1: x402
 
 > **왜 먼저?**: 가장 단순해서 개념 잡기 좋음
 
@@ -67,15 +72,11 @@ python client.py
 === 데모 종료 ===
 ```
 
-### 설명 포인트
-
 | 시점 | 설명할 내용 |
 |------|------------|
 | `402 Payment Required` | "서버가 결제 요구. HTTP 표준 상태코드" |
 | `X-PAYMENT 헤더` | "결제 정보를 Base64로 인코딩해서 전송" |
 | `✓ 결제 성공` | "Stateless - 매번 독립적으로 결제" |
-
-### 강조할 점
 
 - **세션 없음**: 로그인도 장바구니도 없음
 - **즉시 정산**: 실제로는 2초 내 온체인 처리
@@ -83,7 +84,7 @@ python client.py
 
 ---
 
-## 데모 2: A2A + AP2 (8분)
+## 데모 2: A2A + AP2
 
 > **왜 두 번째?**: x402보다 복잡하지만, 실제 쇼핑 시나리오
 
@@ -153,7 +154,76 @@ python client_agent.py
 
 ---
 
-## 마무리 (5분)
+## 데모 3: UCP
+
+> **왜 마지막?**: A2A와 비교하며 "더 단순한 대안"을 보여줌
+
+### 핵심 메시지
+
+> "기존 쇼핑몰에 AI 연동하려면 UCP가 더 쉽습니다.
+> REST API만 쓰면 되니까요."
+
+### 실행
+
+**터미널 1 (상점 서버)**
+```bash
+cd demos/ucp
+python merchant_server.py
+```
+
+**터미널 2 (클라이언트)**
+```bash
+cd demos/ucp
+python client_demo.py
+```
+
+### 예상 출력
+
+```
+=== UCP 데모: 쇼핑 클라이언트 ===
+
+[Step 1] UCP Capability 발견
+  ✓ 상점: Demo Flower Shop
+  ✓ Discovery 지원: True
+  ✓ Checkout 지원: True
+
+[Step 2] 상품 검색
+  ✓ 검색 결과: 1개
+    - Red Rose Bouquet: $45.00
+
+[Step 3] 결제 세션 생성
+  ✓ Session ID: session_abc123
+  ✓ 총액: $50.00
+
+[Step 4] 주문 제출
+  ✓ Order ID: order_xyz789
+  ✓ 상태: confirmed
+
+=== 데모 종료 ===
+```
+
+### 설명 포인트
+
+| 시점 | 설명할 내용 |
+|------|------------|
+| `Capability 발견` | "/.well-known/ucp.json에서 지원 기능 확인" |
+| `상품 검색` | "REST API로 검색. 기존 쇼핑몰 API와 유사" |
+| `Checkout Session` | "Mandate 대신 세션 기반. 웹 결제와 비슷" |
+
+### A2A + AP2와 비교
+
+| 구분 | A2A + AP2 | UCP |
+|------|-----------|-----|
+| **발견** | Agent Card | Capability Profile |
+| **통신** | JSON-RPC | REST API |
+| **결제** | Mandate 시스템 | Checkout Session |
+| **적합** | 에이전트 간 협업 | 기존 쇼핑몰 연동 |
+
+> **핵심**: UCP는 A2A를 대체하지 않음. 기존 시스템과 통합이 쉬운 **실용적 선택지**
+
+---
+
+## 마무리
 
 ### 핵심 요약
 
