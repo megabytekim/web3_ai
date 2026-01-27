@@ -98,8 +98,87 @@ Claude: [PayPal MCP를 통해 청구서 생성]
 | `list_disputes` | 분쟁 목록 |
 | `get_tracking_info` | 배송 추적 |
 
+---
+
+## 🇰🇷 한국 결제 MCP
+
+### 토스페이먼츠 MCP
+
+> PG업계 최초 MCP 서버 (2025년 6월). **10분 만에 결제 연동 가능**
+
+**시작하기:**
+1. [토스페이먼츠 개발자센터](https://developers.tosspayments.com/sandbox) 가입
+2. 테스트용 API 키 자동 발급
+3. Sandbox에서 바로 테스트
+
+**사용 예시:**
+```
+"결제창을 연결해줘"
+"정기결제 연동하고 싶어"
+→ AI가 연동 코드 생성
+```
+
+**특징:**
+- Claude, Cursor 등 AI 코딩툴과 호환
+- 결제 연동 문서/코드 생성 특화
+- 회원가입만 하면 바로 테스트 가능
+
+**참고:** [토스페이먼츠 MCP 구현기](https://toss.tech/article/tosspayments-mcp)
+
+---
+
+### 카카오페이 MCP Agent Toolkit
+
+> 결제/정기결제 관련 **7개 API**를 자연어로 호출
+
+**시작하기:**
+1. [카카오페이 개발자센터](https://developers.kakaopay.com/) 가입
+2. Sandbox 환경에서 테스트
+
+**사용 예시:**
+```
+"5000원짜리 커피 결제 링크 생성해줘"
+→ 실제 데모 결제 링크 생성됨
+```
+
+**지원 기능:**
+
+| 기능 | 설명 |
+|------|------|
+| 결제 테스트 | 테스트 결제 실행 |
+| 결제 준비 | 결제 링크 생성 |
+| 결제 승인 | 결제 확정 |
+| 결제 취소 | 환불 처리 |
+| 상태 조회 | 결제 상태 확인 |
+| 정기결제 | 구독 결제 |
+
+**지원 프레임워크:**
+- LangChain
+- OpenAI SDK
+- Vercel AI SDK
+
+**참고:** [카카오페이 MCP 기술 블로그](https://tech.kakaopay.com/post/kakaopay-mcp-agent-toolkit/)
+
+---
+
+### 한국 vs 글로벌 비교
+
+| 항목 | PayPal | 토스페이먼츠 | 카카오페이 |
+|------|--------|-------------|-----------|
+| **Sandbox** | ✓ | ✓ | ✓ |
+| **MCP 용도** | 결제 API 호출 | 연동 코드 생성 | 결제 API 호출 |
+| **시작 난이도** | 중간 | 쉬움 | 중간 |
+| **한국 사용** | 제한적 | ⭐ 최적 | ⭐ 최적 |
+
+---
+
 ## 참고
 
+**글로벌:**
 - PayPal Agent Toolkit: https://github.com/paypal/agent-toolkit
-- PayPal MCP 문서: https://www.paypal.ai/docs/tools/agent-toolkit-quickstart
+- PayPal MCP 문서: https://docs.paypal.ai/developer/tools/ai/mcp-quickstart
 - Anthropic MCP: https://docs.anthropic.com/en/docs/claude-code/mcp
+
+**한국:**
+- 토스페이먼츠 개발자센터: https://developers.tosspayments.com/
+- 카카오페이 개발자센터: https://developers.kakaopay.com/
