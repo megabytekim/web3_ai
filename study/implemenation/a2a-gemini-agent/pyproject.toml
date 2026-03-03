@@ -6,3 +6,8 @@ dependencies = [
     "a2a-sdk[http-server]",
     "google-genai",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
