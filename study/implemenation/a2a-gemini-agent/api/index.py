@@ -58,10 +58,14 @@ class GeminiChatExecutor(AgentExecutor):
             )
         )
 
-        response = await self._client.aio.models.generate_content(
-            model=self.MODEL,
-            contents=history,
-        )
+        try:
+            response = await self._client.aio.models.generate_content(
+                model=self.MODEL,
+                contents=history,
+            )
+        except Exception:
+            history.pop()  # rollback user message
+            return "(Error: could not get response)"
 
         assistant_text = response.text or "(no response)"
         history.append(

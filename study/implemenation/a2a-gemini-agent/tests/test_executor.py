@@ -8,9 +8,16 @@ import pytest
 
 def test_executor_extracts_text_and_calls_gemini():
     """Executor should extract user text, call Gemini, and enqueue response."""
+    from google.genai import types as genai_types
+
     from api.index import GeminiChatExecutor
 
     executor = GeminiChatExecutor()
+
+    # Configure the mock client to return a proper response
+    mock_response = MagicMock()
+    mock_response.text = "I'm a Gemini-powered chat agent!"
+    executor._client.aio.models.generate_content = AsyncMock(return_value=mock_response)
 
     # Mock context
     context = MagicMock()
@@ -20,10 +27,19 @@ def test_executor_extracts_text_and_calls_gemini():
     # Mock event queue
     event_queue = AsyncMock()
 
-    with patch.object(executor, "_get_gemini_response", new_callable=AsyncMock) as mock_gemini:
-        mock_gemini.return_value = "I'm a Gemini-powered chat agent!"
-        asyncio.run(executor.execute(context, event_queue))
+    asyncio.run(executor.execute(context, event_queue))
 
+    # Verify Gemini was called
+    executor._client.aio.models.generate_content.assert_called_once()
+
+    # Verify history is populated with Content objects (user + model)
+    history = executor._chat_histories["ctx_123"]
+    assert len(history) == 2
+    assert isinstance(history[0], genai_types.Content)
+    assert history[0].role == "user"
+    assert history[1].role == "model"
+
+    # Verify the response was enqueued
     event_queue.enqueue_event.assert_called_once()
     call_args = event_queue.enqueue_event.call_args[0][0]
     assert call_args.parts[0].root.text == "I'm a Gemini-powered chat agent!"
