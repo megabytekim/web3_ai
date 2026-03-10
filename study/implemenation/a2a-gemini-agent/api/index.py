@@ -75,7 +75,17 @@ class GeminiChatExecutor(AgentExecutor):
     async def _get_gemini_response(self, ctx_id: str, user_text: str) -> str:
         """Send message to Gemini with conversation history."""
         if ctx_id not in self._chat_histories:
-            self._chat_histories[ctx_id] = []
+            # Gemma doesn't support system_instruction, so inject as first turn
+            self._chat_histories[ctx_id] = [
+                genai_types.Content(
+                    role="user",
+                    parts=[genai_types.Part(text=f"[시스템 지시]\n{SYSTEM_INSTRUCTION}\n\n위 지시를 따라서 대화해줘.")],
+                ),
+                genai_types.Content(
+                    role="model",
+                    parts=[genai_types.Part(text="알겠네, 자네. 나는 Agent M이라네. 무엇이든 물어보게.")],
+                ),
+            ]
 
         history = self._chat_histories[ctx_id]
         history.append(
@@ -89,9 +99,6 @@ class GeminiChatExecutor(AgentExecutor):
             response = await self._client.aio.models.generate_content(
                 model=self.MODEL,
                 contents=history,
-                config=genai_types.GenerateContentConfig(
-                    system_instruction=SYSTEM_INSTRUCTION,
-                ),
             )
         except Exception as exc:
             history.pop()  # rollback user message
