@@ -12,7 +12,7 @@ def main():
 
     # Step 1: Discover agent
     print("=== Agent Discovery ===")
-    resp = client.get(f"{AGENT_URL}/.well-known/agent.json")
+    resp = client.get(f"{AGENT_URL}/.well-known/agent-card.json")
     card = resp.json()
     print(f"Name: {card['name']}")
     print(f"Skills: {[s['name'] for s in card['skills']]}")

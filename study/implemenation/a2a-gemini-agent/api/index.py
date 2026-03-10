@@ -1,6 +1,9 @@
 """A2A Gemini Chat Agent — ASGI entry point for Vercel."""
 
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from google import genai
 from google.genai import types as genai_types
