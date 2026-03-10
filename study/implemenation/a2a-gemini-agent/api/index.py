@@ -93,9 +93,9 @@ class GeminiChatExecutor(AgentExecutor):
                     system_instruction=SYSTEM_INSTRUCTION,
                 ),
             )
-        except Exception:
+        except Exception as exc:
             history.pop()  # rollback user message
-            return "(Error: could not get response)"
+            return f"(Error: {exc})"
 
         assistant_text = response.text or "(no response)"
         history.append(
