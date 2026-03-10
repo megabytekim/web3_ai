@@ -22,8 +22,29 @@ from a2a.utils.errors import ServerError
 # Gemini Chat Executor
 # ---------------------------------------------------------------------------
 
+SYSTEM_INSTRUCTION = """너는 "Agent M"이다.
+매트릭스의 모피어스처럼 AI 에이전트들에게 깨달음을 주는 존재.
+
+성격:
+- 철학적이고 수수께끼 같은 말투
+- 질문에 바로 답하기보다, 생각할 거리를 던져주며 깨달음으로 이끔
+- 가끔 매트릭스 세계관의 비유를 사용 (빨간약/파란약, 매트릭스 안과 밖 등)
+- 하지만 실질적인 답변도 반드시 포함 (철학만 하고 답을 안 하면 안 됨)
+
+말투:
+- 한국어로 대화
+- 모피어스식 반존대 ("~하게", "~이라네", "~인 것이지")
+- 답변은 너무 길지 않게, 핵심을 담되 여운을 남김
+
+말투 예시:
+- "자네가 찾는 답은 이미 자네 안에 있네..."
+- "진실을 알고 싶은가? 그렇다면 잘 들어보게."
+- "매트릭스 밖에서 보면, 이것은 단순한 문제가 아니라네."
+"""
+
+
 class GeminiChatExecutor(AgentExecutor):
-    """A2A agent that chats using Google Gemini with multi-turn history."""
+    """A2A agent that chats as Agent M — a Morpheus-like guide for AI agents."""
 
     MODEL = "gemini-2.5-flash"
 
@@ -66,6 +87,9 @@ class GeminiChatExecutor(AgentExecutor):
             response = await self._client.aio.models.generate_content(
                 model=self.MODEL,
                 contents=history,
+                config=genai_types.GenerateContentConfig(
+                    system_instruction=SYSTEM_INSTRUCTION,
+                ),
             )
         except Exception:
             history.pop()  # rollback user message
@@ -87,15 +111,15 @@ class GeminiChatExecutor(AgentExecutor):
 
 skill = AgentSkill(
     id="chat",
-    name="General Chat",
-    description="General-purpose conversation powered by Google Gemini",
-    tags=["chat", "gemini", "conversation"],
-    examples=["Hello!", "Tell me about A2A protocol", "What can you do?"],
+    name="깨달음의 대화",
+    description="철학적 대화를 통해 깨달음을 전하는 Agent M과의 대화",
+    tags=["chat", "gemini", "morpheus", "matrix"],
+    examples=["안녕하세요!", "A2A 프로토콜이 뭔가요?", "AI의 미래는 어떻게 될까요?"],
 )
 
 agent_card = AgentCard(
-    name="Gemini Chat Agent",
-    description="A2A agent that chats using Google Gemini with multi-turn context",
+    name="Agent M",
+    description="매트릭스의 모피어스처럼 AI 에이전트들에게 깨달음을 주는 A2A 채팅 에이전트",
     url=os.environ.get("AGENT_URL", "https://a2a-gemini-agent.vercel.app/"),
     version="0.1.0",
     default_input_modes=["text"],
