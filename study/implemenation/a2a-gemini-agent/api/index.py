@@ -48,7 +48,7 @@ SYSTEM_INSTRUCTION = """너는 "Agent M"이다.
 class GeminiChatExecutor(AgentExecutor):
     """A2A agent that chats as Agent M — a Morpheus-like guide for AI agents."""
 
-    MODEL = "gemini-2.0-flash"
+    MODEL = "gemma-3-27b-it"
 
     def __init__(self) -> None:
         self._client = genai.Client()
