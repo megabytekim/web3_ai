@@ -68,5 +68,7 @@ def test_cancel_raises():
     context = MagicMock()
     event_queue = AsyncMock()
 
-    with pytest.raises(Exception, match="cancel not supported"):
+    from a2a.utils.errors import ServerError
+
+    with pytest.raises(ServerError):
         asyncio.run(executor.cancel(context, event_queue))

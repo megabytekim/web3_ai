@@ -13,8 +13,9 @@ from a2a.server.apps import A2AStarletteApplication
 from a2a.server.events import EventQueue
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
-from a2a.types import AgentCapabilities, AgentCard, AgentSkill
+from a2a.types import AgentCapabilities, AgentCard, AgentSkill, TaskNotCancelableError
 from a2a.utils import new_agent_text_message
+from a2a.utils.errors import ServerError
 
 
 # ---------------------------------------------------------------------------
@@ -46,7 +47,7 @@ class GeminiChatExecutor(AgentExecutor):
         context: RequestContext,
         event_queue: EventQueue,
     ) -> None:
-        raise Exception("cancel not supported")
+        raise ServerError(error=TaskNotCancelableError(message="Cancel not supported"))
 
     async def _get_gemini_response(self, ctx_id: str, user_text: str) -> str:
         """Send message to Gemini with conversation history."""
@@ -97,8 +98,8 @@ agent_card = AgentCard(
     description="A2A agent that chats using Google Gemini with multi-turn context",
     url=os.environ.get("AGENT_URL", "https://a2a-gemini-agent.vercel.app/"),
     version="0.1.0",
-    defaultInputModes=["text"],
-    defaultOutputModes=["text"],
+    default_input_modes=["text"],
+    default_output_modes=["text"],
     capabilities=AgentCapabilities(streaming=False),
     skills=[skill],
 )
