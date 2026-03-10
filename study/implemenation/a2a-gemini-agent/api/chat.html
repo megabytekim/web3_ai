@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent M — 깨달음의 대화</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0a0a0a;
+    color: #e0e0e0;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #1a3a1a;
+    background: linear-gradient(180deg, #0d1a0d 0%, #0a0a0a 100%);
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-size: 1.2rem;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+  }
+  header p {
+    font-size: 0.8rem;
+    color: #4a8a4a;
+    margin-top: 4px;
+  }
+
+  /* Chat area */
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .msg {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .msg.user {
+    align-self: flex-end;
+    background: #1a1a2e;
+    border: 1px solid #2a2a4e;
+    color: #c0c0e0;
+    border-bottom-right-radius: 4px;
+  }
+
+  .msg.agent {
+    align-self: flex-start;
+    background: #0d1a0d;
+    border: 1px solid #1a3a1a;
+    color: #c0e0c0;
+    border-bottom-left-radius: 4px;
+  }
+  .msg.agent .name {
+    font-size: 0.75rem;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  .msg.error {
+    align-self: center;
+    background: #2a0a0a;
+    border: 1px solid #4a1a1a;
+    color: #ff6b6b;
+    font-size: 0.85rem;
+  }
+
+  .msg.system {
+    align-self: center;
+    color: #4a8a4a;
+    font-size: 0.8rem;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* Typing indicator */
+  .typing {
+    align-self: flex-start;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+  }
+  .typing span {
+    animation: blink 1s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+
+  /* Input area */
+  #input-area {
+    padding: 16px 20px;
+    border-top: 1px solid #1a3a1a;
+    background: #0d0d0d;
+    display: flex;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  #input-area input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #1a3a1a;
+    border-radius: 8px;
+    background: #111;
+    color: #e0e0e0;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #input-area input:focus {
+    border-color: #00ff41;
+  }
+  #input-area input::placeholder {
+    color: #4a4a4a;
+  }
+
+  #input-area button {
+    padding: 12px 24px;
+    border: 1px solid #00ff41;
+    border-radius: 8px;
+    background: transparent;
+    color: #00ff41;
+    font-size: 0.9rem;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+  #input-area button:hover {
+    background: #00ff41;
+    color: #0a0a0a;
+  }
+  #input-area button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  /* Scrollbar */
+  #chat::-webkit-scrollbar { width: 6px; }
+  #chat::-webkit-scrollbar-track { background: transparent; }
+  #chat::-webkit-scrollbar-thumb { background: #1a3a1a; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>AGENT M</h1>
+  <p>매트릭스의 모피어스처럼 깨달음을 전하는 A2A 에이전트</p>
+</header>
+
+<div id="chat">
+  <div class="msg system">// connection established — type a message to begin</div>
+</div>
+
+<div id="input-area">
+  <input id="msg-input" type="text" placeholder="메시지를 입력하세요..." autocomplete="off" />
+  <button id="send-btn" onclick="send()">SEND</button>
+</div>
+
+<script>
+const chat = document.getElementById('chat');
+const input = document.getElementById('msg-input');
+const btn = document.getElementById('send-btn');
+
+const contextId = 'ctx_' + crypto.randomUUID().replace(/-/g, '').slice(0, 12);
+let sending = false;
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.isComposing && !sending) send();
+});
+
+function addMsg(text, cls) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + cls;
+  if (cls === 'agent') {
+    div.innerHTML = '<div class="name">AGENT M</div>' + escapeHtml(text);
+  } else {
+    div.textContent = text;
+  }
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'typing';
+  div.id = 'typing';
+  div.innerHTML = '<span>.</span><span>.</span><span>.</span> processing';
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing');
+  if (el) el.remove();
+}
+
+function escapeHtml(text) {
+  const d = document.createElement('div');
+  d.textContent = text;
+  return d.innerHTML;
+}
+
+async function send() {
+  const text = input.value.trim();
+  if (!text || sending) return;
+
+  sending = true;
+  btn.disabled = true;
+  input.value = '';
+  addMsg(text, 'user');
+  showTyping();
+
+  try {
+    const payload = {
+      jsonrpc: '2.0',
+      id: crypto.randomUUID(),
+      method: 'message/send',
+      params: {
+        message: {
+          messageId: crypto.randomUUID(),
+          role: 'user',
+          contextId: contextId,
+          parts: [{ kind: 'text', text: text }],
+        },
+      },
+    };
+
+    const resp = await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await resp.json();
+
+    hideTyping();
+
+    if (data.error) {
+      addMsg(data.error.message || 'Unknown error', 'error');
+    } else {
+      // A2A returns either a direct message (kind:"message") or a task with status
+      const r = data.result;
+      const parts = r?.parts                          // direct message
+        ?? r?.status?.message?.parts                   // task wrapper
+        ?? [];
+      const agentText = parts
+        .filter(p => p.kind === 'text')
+        .map(p => p.text)
+        .join('\n');
+      addMsg(agentText || '(no response)', 'agent');
+    }
+  } catch (err) {
+    hideTyping();
+    addMsg('Connection error: ' + err.message, 'error');
+  } finally {
+    sending = false;
+    btn.disabled = false;
+    input.focus();
+  }
+}
+
+input.focus();
+</script>
+</body>
+</html>

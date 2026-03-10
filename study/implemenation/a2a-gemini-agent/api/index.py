@@ -1,6 +1,8 @@
 """A2A Gemini Chat Agent — ASGI entry point for Vercel."""
 
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -138,4 +140,24 @@ server = A2AStarletteApplication(
     http_handler=request_handler,
 )
 
-app = server.build()
+# ---------------------------------------------------------------------------
+# ASGI app with chat UI
+# ---------------------------------------------------------------------------
+
+from starlette.applications import Starlette
+from starlette.responses import HTMLResponse
+from starlette.routing import Route, Mount
+
+_CHAT_HTML = (Path(__file__).parent / "chat.html").read_text()
+
+
+async def _chat_ui(request):
+    return HTMLResponse(_CHAT_HTML)
+
+
+_a2a_app = server.build()
+
+app = Starlette(routes=[
+    Route("/chat", _chat_ui),
+    Mount("/", app=_a2a_app),
+])
