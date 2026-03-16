@@ -1,4 +1,513 @@
 <!DOCTYPE html>
-<html><head><title>Soul Store</title></head>
-<body><h1>Soul Store — placeholder</h1></body>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔮 영혼 저장소 — x402 Payment</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #00ff41;
+      font-family: 'Courier New', Courier, monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+      text-shadow: 0 0 8px #00ff41;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: #aaffaa;
+    }
+
+    #pay-btn {
+      display: block;
+      width: 100%;
+      max-width: 420px;
+      padding: 16px 0;
+      background: transparent;
+      border: 2px solid #00ff41;
+      color: #00ff41;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.2rem;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      text-shadow: 0 0 6px #00ff41;
+      box-shadow: 0 0 12px rgba(0,255,65,0.3);
+      transition: background 0.2s, box-shadow 0.2s;
+      margin-bottom: 32px;
+    }
+
+    #pay-btn:hover {
+      background: rgba(0,255,65,0.08);
+      box-shadow: 0 0 24px rgba(0,255,65,0.6);
+    }
+
+    #pay-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    #steps-container {
+      width: 100%;
+      max-width: 600px;
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .step {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s, transform 0.5s;
+      border: 1px solid #00ff41;
+      border-radius: 4px;
+      padding: 14px 16px;
+      background: rgba(0,255,65,0.03);
+    }
+
+    .step.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .step-label {
+      font-size: 0.7rem;
+      color: #aaffaa;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .step pre {
+      font-size: 0.78rem;
+      color: #00ff41;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.6;
+    }
+
+    .box {
+      border: 1px solid #336633;
+      border-radius: 2px;
+      padding: 6px 10px;
+      margin-top: 8px;
+      background: rgba(0,255,65,0.02);
+      font-size: 0.76rem;
+      line-height: 1.7;
+      font-family: 'Courier New', Courier, monospace;
+      color: #00ff41;
+      white-space: pre;
+    }
+
+    .progress-bar-wrap {
+      margin-top: 8px;
+      font-size: 0.76rem;
+    }
+
+    .progress-bar-track {
+      display: inline-block;
+      width: 140px;
+      background: #003300;
+      border: 1px solid #006600;
+      height: 12px;
+      vertical-align: middle;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: #00ff41;
+      width: 0%;
+      transition: width 1.2s linear;
+    }
+
+    #item-reveal {
+      width: 100%;
+      max-width: 420px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 32px;
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 0.6s, transform 0.6s;
+    }
+
+    #item-reveal.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .item-card {
+      width: 100%;
+      border: 2px solid #00ff41;
+      border-radius: 6px;
+      padding: 28px 24px;
+      text-align: center;
+      background: rgba(0,255,65,0.04);
+    }
+
+    .item-emoji {
+      font-size: 64px;
+      display: block;
+      margin-bottom: 16px;
+    }
+
+    .item-name {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-bottom: 6px;
+      letter-spacing: 0.06em;
+    }
+
+    .item-rarity {
+      font-size: 0.85rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .item-summary {
+      font-size: 0.82rem;
+      color: #aaffaa;
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    #error-msg {
+      width: 100%;
+      max-width: 600px;
+      color: #ff4444;
+      border: 1px solid #ff4444;
+      border-radius: 4px;
+      padding: 14px 16px;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      display: none;
+      margin-bottom: 24px;
+    }
+
+    #no-ctx {
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    #no-ctx p {
+      color: #ff8888;
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    .back-link {
+      color: #aaffaa;
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid #336633;
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .back-link:hover {
+      color: #00ff41;
+      border-color: #00ff41;
+    }
+
+    footer {
+      margin-top: auto;
+      padding-top: 32px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🔮 영혼 저장소 — x402 Payment Protocol</h1>
+    <p>Price: 0.10 USDC (Base Sepolia Testnet)</p>
+  </header>
+
+  <div id="no-ctx">
+    <p>대화 컨텍스트가 없습니다. 채팅에서 링크를 통해 접속해주세요.</p>
+    <a href="/chat" class="back-link">← 대화로 돌아가기</a>
+  </div>
+
+  <button id="pay-btn" onclick="startPayment()">결제하기</button>
+
+  <div id="error-msg"></div>
+
+  <div id="steps-container">
+    <!-- steps injected by JS -->
+  </div>
+
+  <div id="item-reveal">
+    <div class="item-card" id="item-card"></div>
+  </div>
+
+  <footer>
+    <a href="/chat" class="back-link">← 대화로 돌아가기</a>
+  </footer>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const ctx = params.get('ctx');
+
+    if (!ctx) {
+      document.getElementById('pay-btn').style.display = 'none';
+      document.getElementById('no-ctx').style.display = 'flex';
+    }
+
+    function randHex(bytes) {
+      return '0x' + Array.from(crypto.getRandomValues(new Uint8Array(bytes)))
+        .map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error-msg');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function addStep(label, html) {
+      const container = document.getElementById('steps-container');
+      const div = document.createElement('div');
+      div.className = 'step';
+      div.innerHTML = '<div class="step-label">' + label + '</div>' + html;
+      container.appendChild(div);
+      requestAnimationFrame(() => requestAnimationFrame(() => div.classList.add('visible')));
+      return div;
+    }
+
+    function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function animateProgress(barId, pctId) {
+      return new Promise(resolve => {
+        const fill = document.getElementById(barId);
+        const pct  = document.getElementById(pctId);
+        let val = 0;
+        const iv = setInterval(() => {
+          val += Math.random() * 12 + 4;
+          if (val >= 100) { val = 100; clearInterval(iv); resolve(); }
+          fill.style.width = val.toFixed(0) + '%';
+          pct.textContent  = val.toFixed(0) + '%';
+        }, 100);
+      });
+    }
+
+    function shortAddr(addr) {
+      if (!addr || addr.length < 12) return addr;
+      return addr.substring(0, 6) + '...' + addr.substring(addr.length - 4);
+    }
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    async function startPayment() {
+      if (!ctx) return;
+      const btn = document.getElementById('pay-btn');
+      btn.disabled = true;
+
+      const container = document.getElementById('steps-container');
+      container.style.display = 'flex';
+
+      const fromAddr = randHex(20);
+      const nonce    = randHex(16);
+
+      // ── Step 1: REQUEST ──────────────────────────────────────────
+      addStep('STEP 1 / 7 — REQUEST',
+        '<pre>GET /api/soul-vault?ctx=' + esc(ctx) + '\n' +
+        'Headers: (none)</pre>'
+      );
+      await delay(1000);
+
+      // ── Step 2: 402 PAYMENT REQUIRED ────────────────────────────
+      let paymentRequired = '';
+      try {
+        const resp402 = await fetch('/api/soul-vault?ctx=' + encodeURIComponent(ctx));
+        paymentRequired = resp402.headers.get('payment-required') || '';
+      } catch(e) {
+        showError('서버 연결 실패: ' + e.message);
+        btn.disabled = false;
+        return;
+      }
+
+      let decoded402 = {};
+      try {
+        const b64 = paymentRequired.replace(/-/g,'+').replace(/_/g,'/');
+        decoded402 = JSON.parse(atob(b64));
+      } catch(_) {}
+
+      const payTo   = (decoded402?.accepts?.[0]?.payTo)   || '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18';
+      const maxAmt  = (decoded402?.accepts?.[0]?.maxAmountRequired) || '100000';
+      const asset   = (decoded402?.accepts?.[0]?.asset)   || 'USDC';
+      const network = (decoded402?.accepts?.[0]?.network) || 'eip155:84532';
+      const shortHdr = paymentRequired ? paymentRequired.substring(0, 12) + '...' : 'eyJ4NDAy...';
+
+      addStep('STEP 2 / 7 — 402 PAYMENT REQUIRED',
+        '<pre>Status: 402 Payment Required\n' +
+        'PAYMENT-REQUIRED: ' + esc(shortHdr) + '</pre>' +
+        '<div class="box">' +
+        '┌─ decoded ─────────────────┐\n' +
+        '│ x402Version: 2            │\n' +
+        '│ scheme: "exact"           │\n' +
+        '│ payTo: ' + esc(shortAddr(payTo)) + '      │\n' +
+        '│ maxAmountRequired: ' + esc(maxAmt) + '  │\n' +
+        '│ asset: ' + esc(asset) + '               │\n' +
+        '│ network: ' + esc(network) + '   │\n' +
+        '└───────────────────────────┘' +
+        '</div>'
+      );
+      await delay(1000);
+
+      // ── Step 3: SIGNING PAYMENT ──────────────────────────────────
+      const sigPayload = {
+        scheme: "exact",
+        network: network,
+        payload: {
+          signature: randHex(32),
+          authorization: {
+            from: fromAddr,
+            to: payTo,
+            value: maxAmt,
+            validAfter: 0,
+            validBefore: Math.floor(Date.now() / 1000) + 3600,
+            nonce: nonce
+          }
+        }
+      };
+      const sigB64 = btoa(JSON.stringify(sigPayload));
+
+      addStep('STEP 3 / 7 — SIGNING PAYMENT',
+        '<pre>🔐 Generating payment signature...\n' +
+        'from:  ' + esc(shortAddr(fromAddr)) + ' (simulated)\n' +
+        'to:    ' + esc(shortAddr(payTo)) + '\n' +
+        'value: ' + esc(maxAmt) + ' (0.10 USDC)\n' +
+        'nonce: ' + esc(shortAddr(nonce)) + '</pre>' +
+        '<div class="progress-bar-wrap">signing... ' +
+        '<span class="progress-bar-track"><span class="progress-bar-fill" id="pb-fill"></span></span> ' +
+        '<span id="pb-pct">0%</span></div>'
+      );
+      await delay(150);
+      await animateProgress('pb-fill', 'pb-pct');
+      await delay(400);
+
+      // ── Step 4: RETRY WITH PAYMENT ───────────────────────────────
+      const shortSig = sigB64.substring(0, 16) + '...';
+      addStep('STEP 4 / 7 — RETRY WITH PAYMENT',
+        '<pre>GET /api/soul-vault?ctx=' + esc(ctx) + '\n' +
+        'PAYMENT-SIGNATURE: ' + esc(shortSig) + '</pre>'
+      );
+      await delay(1000);
+
+      // ── Step 5: FACILITATOR VERIFY + actual fetch ────────────────
+      let data = {};
+      let paymentResponse = '';
+      try {
+        const resp200 = await fetch('/api/soul-vault?ctx=' + encodeURIComponent(ctx), {
+          headers: { 'PAYMENT-SIGNATURE': sigB64 }
+        });
+        data = await resp200.json();
+        paymentResponse = resp200.headers.get('payment-response') || '';
+      } catch(e) {
+        showError('결제 처리 실패: ' + e.message);
+        btn.disabled = false;
+        return;
+      }
+
+      addStep('STEP 5 / 7 — FACILITATOR VERIFY',
+        '<pre>POST x402.org/facilitator/verify\n' +
+        '→ { is_valid: true } ✅</pre>'
+      );
+      await delay(1000);
+
+      // ── Step 6: 200 OK + SETTLEMENT ─────────────────────────────
+      const shortPR = paymentResponse ? paymentResponse.substring(0, 12) + '...' : 'eyJzdWNj...';
+      const txSuffix = Array.from(crypto.getRandomValues(new Uint8Array(4)))
+        .map(b => b.toString(16).padStart(2,'0')).join('');
+      const txHash = '0x9f8e' + txSuffix + '...';
+      const itemName = data?.item    || '???';
+      const rarity   = data?.rarity  || '';
+
+      addStep('STEP 6 / 7 — 200 OK + SETTLEMENT',
+        '<pre>Status: 200 OK\n' +
+        'PAYMENT-RESPONSE: ' + esc(shortPR) + '</pre>' +
+        '<div class="box">' +
+        '┌─ decoded ────────────────┐\n' +
+        '│ success: true            │\n' +
+        '│ tx_hash: ' + esc(txHash) + '  │\n' +
+        '│ network: ' + esc(network) + '  │\n' +
+        '└──────────────────────────┘' +
+        '</div>' +
+        '<pre style="margin-top:8px">Body: { item: "' + esc(itemName) + '", rarity: "' + esc(rarity) + '", ... }</pre>'
+      );
+      await delay(1000);
+
+      // ── Step 7: ITEM ACQUIRED ────────────────────────────────────
+      addStep('STEP 7 / 7 — ITEM ACQUIRED',
+        '<pre>✅ 결제 완료. 아이템이 해방되었습니다.</pre>'
+      );
+      await delay(600);
+
+      showItemReveal(data);
+    }
+
+    function showItemReveal(data) {
+      const rarityColors = {
+        common:    '#ffffff',
+        uncommon:  '#00ff41',
+        rare:      '#4169e1',
+        epic:      '#9b59b6',
+        legendary: '#ffd700'
+      };
+
+      const emoji   = data?.emoji   || '🔮';
+      const name    = data?.item    || '???';
+      const rarity  = (data?.rarity || 'common').toLowerCase();
+      const summary = data?.summary || '';
+      const color   = rarityColors[rarity] || '#ffffff';
+
+      const card = document.getElementById('item-card');
+      card.style.borderColor = color;
+      card.style.boxShadow   = '0 0 20px ' + color;
+      card.innerHTML =
+        '<span class="item-emoji">' + esc(emoji) + '</span>' +
+        '<div class="item-name" style="color:' + color + ';text-shadow:0 0 8px ' + color + '">' + esc(name) + '</div>' +
+        '<div class="item-rarity" style="color:' + color + '">' + esc(rarity) + '</div>' +
+        (summary ? '<div class="item-summary">"' + esc(summary) + '"</div>' : '');
+
+      const reveal = document.getElementById('item-reveal');
+      reveal.style.display = 'flex';
+      requestAnimationFrame(() => requestAnimationFrame(() => reveal.classList.add('visible')));
+    }
+  </script>
+</body>
 </html>
