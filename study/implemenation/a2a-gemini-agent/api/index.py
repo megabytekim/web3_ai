@@ -163,23 +163,95 @@ server = A2AStarletteApplication(
 )
 
 # ---------------------------------------------------------------------------
-# ASGI app with chat UI
+# ASGI app with chat UI + Soul Store
 # ---------------------------------------------------------------------------
 
 from starlette.applications import Starlette
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.routing import Route, Mount
 
 _CHAT_HTML = (Path(__file__).parent / "chat.html").read_text()
+_PAY_HTML = (Path(__file__).parent / "pay.html").read_text()
 
 
 async def _chat_ui(request):
     return HTMLResponse(_CHAT_HTML)
 
 
+async def _soul_store_ui(request):
+    return HTMLResponse(_PAY_HTML)
+
+
+async def _soul_vault_api(request):
+    """x402 payment endpoint for Soul Store."""
+    import base64 as _b64
+    import json as _json
+
+    from api.x402 import (
+        create_payment_required_response,
+        create_payment_response,
+        verify_payment_signature,
+    )
+    from api.soul_store import draw_item, summarize_conversation
+
+    # Handle CORS preflight
+    if request.method == "OPTIONS":
+        return Response(
+            status_code=204,
+            headers={
+                "Access-Control-Allow-Headers": "PAYMENT-SIGNATURE",
+                "Access-Control-Allow-Methods": "GET, OPTIONS",
+            },
+        )
+
+    # 1. Check ctx parameter
+    ctx = request.query_params.get("ctx")
+    if not ctx:
+        return JSONResponse({"error": "ctx parameter required"}, status_code=400)
+
+    # 2. Check conversation history exists
+    if ctx not in chat_histories:
+        return JSONResponse({"error": "conversation not found"}, status_code=404)
+
+    # 3. Check for PAYMENT-SIGNATURE header
+    payment_sig = request.headers.get("payment-signature")
+
+    if not payment_sig:
+        return create_payment_required_response()
+
+    # 4. Verify payment (simulated)
+    payer = verify_payment_signature(payment_sig)
+    if not payer:
+        return JSONResponse({"error": "invalid payment signature"}, status_code=400)
+
+    # 5. Draw random item
+    item = draw_item()
+
+    # 6. Summarize conversation (snapshot to avoid race condition)
+    history_snapshot = list(chat_histories[ctx])
+    summary = await summarize_conversation(gemini_client, history_snapshot)
+
+    # 7. Return 200 with PAYMENT-RESPONSE header
+    payment_response_b64 = create_payment_response(payer)
+    payment_data = _json.loads(_b64.b64decode(payment_response_b64))
+    body = {
+        "item": item,
+        "summary": summary,
+        "payment": {
+            "tx_hash": payment_data["tx_hash"],
+            "network": "eip155:84532",
+            "amount": "100000",
+            "asset": "USDC",
+        },
+    }
+    return JSONResponse(body, headers={"PAYMENT-RESPONSE": payment_response_b64})
+
+
 _a2a_app = server.build()
 
 app = Starlette(routes=[
     Route("/chat", _chat_ui),
+    Route("/soul-store", _soul_store_ui),
+    Route("/api/soul-vault", _soul_vault_api, methods=["GET", "OPTIONS"]),
     Mount("/", app=_a2a_app),
 ])
