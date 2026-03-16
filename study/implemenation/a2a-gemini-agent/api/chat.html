@@ -198,7 +198,13 @@ function addMsg(text, cls) {
   const div = document.createElement('div');
   div.className = 'msg ' + cls;
   if (cls === 'agent') {
-    div.innerHTML = '<div class="name">AGENT M</div>' + escapeHtml(text);
+    let escaped = escapeHtml(text);
+    // Render markdown links — only relative URLs (starting with /) to prevent XSS
+    escaped = escaped.replace(
+      /\[([^\]]+)\]\((\/[^)]+)\)/g,
+      '<a href="$2" target="_blank" style="color:#00ff41;text-decoration:underline">$1</a>'
+    );
+    div.innerHTML = '<div class="name">AGENT M</div>' + escaped;
   } else {
     div.textContent = text;
   }
