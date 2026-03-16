@@ -49,3 +49,38 @@ python client.py             # 클라이언트
 cd study/week-6/demos
 pytest -v
 ```
+
+## A2A Gemini Agent 개발 워크플로우
+
+### 브랜치 전략
+
+- `main` → **Production** (`a2a-gemini-agent.vercel.app`)
+- `dev` → **Preview** (Vercel이 자동 생성하는 Preview URL)
+
+### 개발 흐름
+
+```bash
+# 1. dev 브랜치에서 작업
+git checkout dev
+
+# 2. 코드 수정 후 push → Vercel Preview 자동 배포
+git add <파일>
+git commit -m "feat: 어쩌구"
+git push
+
+# 3. Preview URL/chat 에서 테스트
+
+# 4. 검증 완료 → main에 merge → Production 자동 배포
+git checkout main
+git merge dev
+git push
+
+# 5. 다시 dev로 돌아와서 계속 개발
+git checkout dev
+```
+
+### 프로젝트 경로
+
+- 코드: `study/implemenation/a2a-gemini-agent/`
+- Vercel Root Directory: `study/implemenation/a2a-gemini-agent`
+- 로컬 실행: `uv run uvicorn api.index:app --host 0.0.0.0 --port 9999`
