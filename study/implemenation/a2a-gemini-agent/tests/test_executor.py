@@ -32,12 +32,14 @@ def test_executor_extracts_text_and_calls_gemini():
     # Verify Gemini was called
     executor._client.aio.models.generate_content.assert_called_once()
 
-    # Verify history is populated with Content objects (user + model)
+    # Verify history: 2 system prompt turns + 1 user + 1 model = 4
     history = executor._chat_histories["ctx_123"]
-    assert len(history) == 2
+    assert len(history) == 4
     assert isinstance(history[0], genai_types.Content)
-    assert history[0].role == "user"
-    assert history[1].role == "model"
+    assert history[0].role == "user"   # system prompt injected as user turn
+    assert history[1].role == "model"  # fake model ack
+    assert history[2].role == "user"   # actual user message
+    assert history[3].role == "model"  # gemini response
 
     # Verify the response was enqueued
     event_queue.enqueue_event.assert_called_once()
