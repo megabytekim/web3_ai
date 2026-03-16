@@ -74,3 +74,28 @@ def test_cancel_raises():
 
     with pytest.raises(ServerError):
         asyncio.run(executor.cancel(context, event_queue))
+
+
+def test_executor_replaces_soul_store_link():
+    """SOUL_STORE_LINK in Gemini response should be replaced with actual URL."""
+    import asyncio
+    from unittest.mock import AsyncMock, MagicMock
+    from api.index import GeminiChatExecutor
+
+    executor = GeminiChatExecutor()
+
+    mock_response = MagicMock()
+    mock_response.text = "자네의 깨달음을 담아두게... [영혼 저장소](SOUL_STORE_LINK)"
+    executor._client.aio.models.generate_content = AsyncMock(return_value=mock_response)
+
+    context = MagicMock()
+    context.get_user_input.return_value = "이 대화를 간직하고 싶어"
+    context.context_id = "ctx_abc"
+
+    event_queue = AsyncMock()
+
+    asyncio.run(executor.execute(context, event_queue))
+
+    call_args = event_queue.enqueue_event.call_args[0][0]
+    assert "/soul-store?ctx=ctx_abc" in call_args.parts[0].root.text
+    assert "SOUL_STORE_LINK" not in call_args.parts[0].root.text
