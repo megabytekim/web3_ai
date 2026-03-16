@@ -7,8 +7,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from google import genai
 from google.genai import types as genai_types
+
+from api.state import gemini_client, chat_histories
 
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.apps import A2AStarletteApplication
@@ -51,8 +52,8 @@ class GeminiChatExecutor(AgentExecutor):
     MODEL = "gemma-3-27b-it"
 
     def __init__(self) -> None:
-        self._client = genai.Client()
-        self._chat_histories: dict[str, list[genai_types.Content]] = {}
+        self._client = gemini_client
+        self._chat_histories = chat_histories
 
     async def execute(
         self,
