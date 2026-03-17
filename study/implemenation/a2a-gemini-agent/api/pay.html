@@ -384,7 +384,7 @@
       } catch(_) {}
 
       const payTo   = (decoded402?.accepts?.[0]?.payTo)   || '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18';
-      const maxAmt  = (decoded402?.accepts?.[0]?.maxAmountRequired) || '100000';
+      const maxAmt  = (decoded402?.accepts?.[0]?.amount) || '100000';
       const asset   = (decoded402?.accepts?.[0]?.asset)   || 'USDC';
       const network = (decoded402?.accepts?.[0]?.network) || 'eip155:84532';
       const shortHdr = paymentRequired ? paymentRequired.substring(0, 12) + '...' : 'eyJ4NDAy...';
@@ -397,7 +397,7 @@
         '│ x402Version: 2            │\n' +
         '│ scheme: "exact"           │\n' +
         '│ payTo: ' + esc(shortAddr(payTo)) + '      │\n' +
-        '│ maxAmountRequired: ' + esc(maxAmt) + '  │\n' +
+        '│ amount: ' + esc(maxAmt) + '             │\n' +
         '│ asset: ' + esc(asset) + '               │\n' +
         '│ network: ' + esc(network) + '   │\n' +
         '└───────────────────────────┘' +
@@ -407,8 +407,14 @@
 
       // ── Step 3: SIGNING PAYMENT ──────────────────────────────────
       const sigPayload = {
-        scheme: "exact",
-        network: network,
+        x402Version: 2,
+        accepted: {
+          scheme: "exact",
+          network: network,
+          amount: maxAmt,
+          asset: asset,
+          payTo: payTo,
+        },
         payload: {
           signature: randHex(32),
           authorization: {
@@ -481,7 +487,7 @@
         '<div class="box">' +
         '┌─ decoded ────────────────┐\n' +
         '│ success: true            │\n' +
-        '│ tx_hash: ' + esc(txHash) + '  │\n' +
+        '│ transaction: ' + esc(txHash) + '│\n' +
         '│ network: ' + esc(network) + '  │\n' +
         '└──────────────────────────┘' +
         '</div>' +

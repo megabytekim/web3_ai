@@ -63,10 +63,16 @@ def test_soul_vault_200_with_valid_payment(client):
     mock_response.text = "자네의 대화는 짧았지만 깊었네..."
     gemini_client.aio.models.generate_content = AsyncMock(return_value=mock_response)
 
-    # Build valid payment signature
+    # Build valid V2 payment signature
     payload = {
-        "scheme": "exact",
-        "network": "eip155:84532",
+        "x402Version": 2,
+        "accepted": {
+            "scheme": "exact",
+            "network": "eip155:84532",
+            "amount": PRICE,
+            "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+            "payTo": PAY_TO,
+        },
         "payload": {
             "signature": "0xFAKESIG",
             "authorization": {

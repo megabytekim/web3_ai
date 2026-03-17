@@ -258,7 +258,7 @@ async def _soul_vault_api(request):
         "item": item,
         "summary": summary,
         "payment": {
-            "tx_hash": payment_data["tx_hash"],
+            "transaction": payment_data["transaction"],
             "network": "eip155:84532",
             "amount": "100000",
             "asset": "USDC",
