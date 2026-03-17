@@ -454,8 +454,9 @@
       const txSuffix = Array.from(crypto.getRandomValues(new Uint8Array(4)))
         .map(b => b.toString(16).padStart(2,'0')).join('');
       const txHash = '0x9f8e' + txSuffix + '...';
-      const itemName = data?.item    || '???';
-      const rarity   = data?.rarity  || '';
+      const itemObj  = data?.item     || {};
+      const itemName = itemObj?.name  || '???';
+      const rarity   = itemObj?.rarity || '';
 
       addStep('STEP 6 / 7 — 200 OK + SETTLEMENT',
         '<pre>Status: 200 OK\n' +
@@ -489,11 +490,12 @@
         legendary: '#ffd700'
       };
 
-      const emoji   = data?.emoji   || '🔮';
-      const name    = data?.item    || '???';
-      const rarity  = (data?.rarity || 'common').toLowerCase();
+      const item    = data?.item     || {};
+      const emoji   = item?.emoji   || '🔮';
+      const name    = item?.name    || '???';
+      const rarity  = (item?.rarity || 'common').toLowerCase();
       const summary = data?.summary || '';
-      const color   = rarityColors[rarity] || '#ffffff';
+      const color   = item?.color   || rarityColors[rarity] || '#ffffff';
 
       const card = document.getElementById('item-card');
       card.style.borderColor = color;
