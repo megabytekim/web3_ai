@@ -75,6 +75,18 @@ class GeminiChatExecutor(AgentExecutor):
         user_text = context.get_user_input()
         ctx_id = context.context_id or "default"
 
+        # Check if user just acquired a soul store item — inject context
+        from api.state import soul_store_results
+        soul_result = soul_store_results.pop(ctx_id, None)
+        if soul_result:
+            item = soul_result["item"]
+            user_text = (
+                f"[시스템 알림: 이 사용자가 방금 영혼 저장소에서 "
+                f"'{item['emoji']} {item['name']}' ({item['rarity']})을 획득했습니다. "
+                f"대화 요약이 아이템에 새겨졌습니다: \"{soul_result['summary']}\" "
+                f"이 사실을 자연스럽게 언급하며 축하해주세요.]\n\n{user_text}"
+            )
+
         reply = await self._get_gemini_response(ctx_id, user_text)
         # Post-process: replace placeholder with actual soul store URL
         reply = reply.replace("SOUL_STORE_LINK", f"/soul-store?ctx={ctx_id}")
@@ -244,6 +256,10 @@ async def _soul_vault_api(request):
             "asset": "USDC",
         },
     }
+    # 8. Store result so Agent M knows about it on next chat message
+    from api.state import soul_store_results
+    soul_store_results[ctx] = {"item": item, "summary": summary}
+
     return JSONResponse(body, headers={"PAYMENT-RESPONSE": payment_response_b64})
 
 

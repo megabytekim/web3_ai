@@ -7,6 +7,8 @@ from google.genai import types as genai_types
 # Module-level singletons (lazy init for gemini_client)
 _gemini_client: genai.Client | None = None
 chat_histories: dict[str, list[genai_types.Content]] = {}
+# Stores soul store results per ctx — consumed once by executor on next chat message
+soul_store_results: dict[str, dict] = {}
 
 
 def get_gemini_client() -> genai.Client:
