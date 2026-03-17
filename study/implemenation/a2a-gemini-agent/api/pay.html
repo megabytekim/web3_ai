@@ -253,7 +253,7 @@
 
   <div id="no-ctx">
     <p>대화 컨텍스트가 없습니다. 채팅에서 링크를 통해 접속해주세요.</p>
-    <a href="/chat" class="back-link">← 대화로 돌아가기</a>
+    <a href="#" onclick="window.close(); setTimeout(()=>location.href='/chat',300); return false;" class="back-link">← 대화로 돌아가기</a>
   </div>
 
   <button id="pay-btn" onclick="startPayment()">결제하기</button>
@@ -269,7 +269,7 @@
   </div>
 
   <footer>
-    <a href="/chat" class="back-link">← 대화로 돌아가기</a>
+    <a href="#" onclick="window.close(); setTimeout(()=>location.href='/chat',300); return false;" class="back-link">← 대화로 돌아가기</a>
   </footer>
 
   <script>
