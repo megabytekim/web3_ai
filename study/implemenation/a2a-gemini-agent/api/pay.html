@@ -256,6 +256,18 @@
     <a href="#" onclick="window.close(); setTimeout(()=>location.href='/chat',300); return false;" class="back-link">← 대화로 돌아가기</a>
   </div>
 
+  <div id="inscription-area" style="width:100%;max-width:420px;margin-bottom:20px">
+    <label for="inscription" style="display:block;font-size:0.85rem;color:#aaffaa;margin-bottom:8px;letter-spacing:0.04em">
+      영혼에 새길 문장을 입력하세요
+    </label>
+    <textarea id="inscription" rows="3" placeholder="이 순간을 기억하며..."
+      style="width:100%;background:#111;border:1px solid #1a3a1a;border-radius:4px;color:#e0e0e0;
+      font-family:'Courier New',monospace;font-size:0.9rem;padding:12px;resize:vertical;
+      outline:none;transition:border-color 0.2s"
+      onfocus="this.style.borderColor='#00ff41'" onblur="this.style.borderColor='#1a3a1a'"
+    ></textarea>
+  </div>
+
   <button id="pay-btn" onclick="startPayment()">결제하기</button>
 
   <div id="error-msg"></div>
@@ -336,11 +348,16 @@
       const btn = document.getElementById('pay-btn');
       btn.disabled = true;
 
+      const inscription = document.getElementById('inscription').value.trim();
+      document.getElementById('inscription-area').style.display = 'none';
+
       const container = document.getElementById('steps-container');
       container.style.display = 'flex';
 
       const fromAddr = randHex(20);
       const nonce    = randHex(16);
+      const vaultUrl = '/api/soul-vault?ctx=' + encodeURIComponent(ctx)
+        + (inscription ? '&inscription=' + encodeURIComponent(inscription) : '');
 
       // ── Step 1: REQUEST ──────────────────────────────────────────
       addStep('STEP 1 / 7 — REQUEST',
@@ -352,7 +369,7 @@
       // ── Step 2: 402 PAYMENT REQUIRED ────────────────────────────
       let paymentRequired = '';
       try {
-        const resp402 = await fetch('/api/soul-vault?ctx=' + encodeURIComponent(ctx));
+        const resp402 = await fetch(vaultUrl);
         paymentRequired = resp402.headers.get('payment-required') || '';
       } catch(e) {
         showError('서버 연결 실패: ' + e.message);
@@ -432,7 +449,7 @@
       let data = {};
       let paymentResponse = '';
       try {
-        const resp200 = await fetch('/api/soul-vault?ctx=' + encodeURIComponent(ctx), {
+        const resp200 = await fetch(vaultUrl, {
           headers: { 'PAYMENT-SIGNATURE': sigB64 }
         });
         data = await resp200.json();

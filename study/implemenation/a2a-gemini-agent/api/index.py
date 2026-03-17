@@ -239,9 +239,13 @@ async def _soul_vault_api(request):
     # 5. Draw random item
     item = draw_item()
 
-    # 6. Summarize conversation (snapshot to avoid race condition)
-    history_snapshot = list(chat_histories[ctx])
-    summary = await summarize_conversation(gemini_client, history_snapshot)
+    # 6. Use inscription if provided, otherwise summarize via Gemini
+    inscription = request.query_params.get("inscription", "").strip()
+    if inscription:
+        summary = inscription
+    else:
+        history_snapshot = list(chat_histories[ctx])
+        summary = await summarize_conversation(gemini_client, history_snapshot)
 
     # 7. Return 200 with PAYMENT-RESPONSE header
     payment_response_b64 = create_payment_response(payer)
