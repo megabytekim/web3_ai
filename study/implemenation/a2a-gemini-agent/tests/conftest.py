@@ -11,18 +11,17 @@ PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-# Patch genai.Client at collection time so that api/state.py (which calls
-# genai.Client() at module level) never contacts the real API during tests.
-_client_patcher = patch("google.genai.Client", return_value=MagicMock())
-_client_patcher.start()
-
 
 @pytest.fixture(autouse=True)
 def _mock_genai_client():
-    """Patch genai.Client globally so tests never need a real API key."""
+    """Patch genai.Client and reset lazy singleton so tests never need a real API key."""
+    import api.state
+
     mock_client = MagicMock()
+    api.state._gemini_client = mock_client
     with patch("google.genai.Client", return_value=mock_client):
         yield
+    api.state._gemini_client = None
 
 
 @pytest.fixture(autouse=True)
